@@ -11,6 +11,9 @@ import OpenAI from 'openai';
 // For Anthropic integration
 import Anthropic from '@anthropic-ai/sdk';
 
+// Import local provider functions
+import { getLocalSummary, getLocalAnalysis, getLocalTags } from './localProvider';
+
 // Result interfaces
 export interface DocumentSummary {
     summary: string;
@@ -594,19 +597,32 @@ async function getAnthropicTags(text: string): Promise<string[]> {
     return ['anthropic', 'tag', 'placeholder'];
 }
 
+/**
+ * Get summary using local model
+ */
 async function getLocalModelSummary(text: string): Promise<{ summary: string; keyPoints: string[] }> {
-    // This would integrate with a locally running model like Ollama
-    return { summary: 'Local model summary placeholder', keyPoints: ['Local point 1', 'Local point 2'] };
+    // Call the local model provider
+    const result = await getLocalSummary(text);
+    return {
+        summary: result.summary,
+        keyPoints: result.keyPoints
+    };
 }
 
+/**
+ * Get analysis using local model
+ */
 async function getLocalModelAnalysis(text: string): Promise<DocumentAnalysis> {
-    // Placeholder
-    return defaultAnalysisResult();
+    // Call the local model provider
+    return await getLocalAnalysis(text);
 }
 
+/**
+ * Get tags using local model
+ */
 async function getLocalModelTags(text: string): Promise<string[]> {
-    // Placeholder
-    return ['local', 'tag', 'placeholder'];
+    // Call the local model provider
+    return await getLocalTags(text);
 }
 
 // Helper functions

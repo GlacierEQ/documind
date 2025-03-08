@@ -68,6 +68,7 @@ export interface EditorsConfig {
     disabledEditors: string[];
 }
 
+// Enhanced AI configuration with local model settings
 export interface AIConfig {
     provider: 'openai' | 'azure' | 'anthropic' | 'local' | 'none';
     apiKey?: string;
@@ -80,6 +81,15 @@ export interface AIConfig {
     taggingEnabled: boolean;
     cacheResults: boolean;
     cacheTTL: number; // in seconds
+    enableTranslation: boolean;
+    languageDetection: boolean;
+    voiceToText: boolean;
+    entityExtraction: boolean;
+    localModelConfig?: {
+        modelType: 'deepseek' | 'llama';
+        modelPath?: string;
+        pythonPath?: string;
+    };
 }
 
 // Add new security configuration
@@ -107,14 +117,6 @@ export interface ScalingConfig {
     ramLimit: number; // in MB
     lazyLoading: boolean;
     asyncIndexing: boolean;
-}
-
-// Enhanced AI configuration
-export interface EnhancedAIConfig extends AIConfig {
-    enableTranslation: boolean;
-    languageDetection: boolean;
-    voiceToText: boolean;
-    entityExtraction: boolean;
 }
 
 // Add RBAC configuration
@@ -230,7 +232,16 @@ export function loadConfig(): Config {
             analysisEnabled: process.env.DOCUMIND_AI_ANALYSIS_ENABLED !== 'false',
             taggingEnabled: process.env.DOCUMIND_AI_TAGGING_ENABLED !== 'false',
             cacheResults: process.env.DOCUMIND_AI_CACHE_RESULTS !== 'false',
-            cacheTTL: parseInt(process.env.DOCUMIND_AI_CACHE_TTL || '86400') // Default: 24 hours
+            cacheTTL: parseInt(process.env.DOCUMIND_AI_CACHE_TTL || '86400'), // Default: 24 hours
+            enableTranslation: process.env.DOCUMIND_ENABLE_TRANSLATION === 'true',
+            languageDetection: process.env.DOCUMIND_LANGUAGE_DETECTION === 'true',
+            voiceToText: process.env.DOCUMIND_VOICE_TO_TEXT === 'true',
+            entityExtraction: process.env.DOCUMIND_ENTITY_EXTRACTION === 'true',
+            localModelConfig: {
+                modelType: (process.env.DOCUMIND_AI_LOCAL_MODEL_TYPE as 'deepseek' | 'llama') || 'deepseek',
+                modelPath: process.env.DOCUMIND_AI_LOCAL_MODEL_PATH,
+                pythonPath: process.env.DOCUMIND_AI_PYTHON_PATH || 'python'
+            }
         },
 
         // Add security configuration
@@ -258,25 +269,6 @@ export function loadConfig(): Config {
             ramLimit: parseInt(process.env.DOCUMIND_RAM_LIMIT || '4096'),
             lazyLoading: process.env.DOCUMIND_LAZY_LOADING === 'true',
             asyncIndexing: process.env.DOCUMIND_ASYNC_INDEXING === 'true'
-        },
-
-        // Enhance AI configuration
-        ai: {
-            provider: (process.env.DOCUMIND_AI_PROVIDER as 'openai' | 'azure' | 'anthropic' | 'local' | 'none') || 'none',
-            apiKey: process.env.DOCUMIND_AI_API_KEY,
-            model: process.env.DOCUMIND_AI_MODEL || 'gpt-3.5-turbo',
-            maxTokens: parseInt(process.env.DOCUMIND_AI_MAX_TOKENS || '1024'),
-            temperature: parseFloat(process.env.DOCUMIND_AI_TEMPERATURE || '0.3'),
-            endpoint: process.env.DOCUMIND_AI_ENDPOINT,
-            summarizationEnabled: process.env.DOCUMIND_AI_SUMMARIZATION_ENABLED !== 'false',
-            analysisEnabled: process.env.DOCUMIND_AI_ANALYSIS_ENABLED !== 'false',
-            taggingEnabled: process.env.DOCUMIND_AI_TAGGING_ENABLED !== 'false',
-            cacheResults: process.env.DOCUMIND_AI_CACHE_RESULTS !== 'false',
-            cacheTTL: parseInt(process.env.DOCUMIND_AI_CACHE_TTL || '86400'), // Default: 24 hours
-            enableTranslation: process.env.DOCUMIND_ENABLE_TRANSLATION === 'true',
-            languageDetection: process.env.DOCUMIND_LANGUAGE_DETECTION === 'true',
-            voiceToText: process.env.DOCUMIND_VOICE_TO_TEXT === 'true',
-            entityExtraction: process.env.DOCUMIND_ENTITY_EXTRACTION === 'true'
         },
 
         // Add RBAC configuration

@@ -1,64 +1,84 @@
 version: '3.8'
 
 services:
-  # Application frontend and API
-  documind:
+  app:
     build:
       context: .
-      dockerfile: docker/Dockerfile
-    restart: always
+      dockerfile: ./docker/Dockerfile
+    container_name: documind-app
+    restart: unless-stopped
     ports:
       - "${DOCUMIND_PORT:-8080}:8080"
     volumes:
       - documind-storage:/var/documind/storage
+      - documind-data:/var/documind/data
+      - ./.env:/app/.env:ro
     depends_on:
       - db
-    env_file: .env
-    environment:
-      - NODE_ENV=production
-      - DOCUMIND_DATABASE_SERVER=db:5432
-    networks:
-      - documind-network
     healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
-  # Database - PostgreSQL by default
   db:
     image: ${DOCUMIND_DATABASE_IMAGE:-postgres:14-alpine}
-    restart: always
+    container_name: documind-db
+    restart: unless-stopped
     volumes:
-      - documind-db-data:/var/lib/postgresql/data
-    env_file: .env
+      - documind-db:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=${DOCUMIND_DATABASE_USER:-documind}
       - POSTGRES_PASSWORD=${DOCUMIND_DATABASE_PASSWORD:-documind}
       - POSTGRES_DB=${DOCUMIND_DATABASE_NAME:-documind}
-      - MYSQL_USER=${DOCUMIND_DATABASE_USER:-documind}
-      - MYSQL_PASSWORD=${DOCUMIND_DATABASE_PASSWORD:-documind}
-      - MYSQL_DATABASE=${DOCUMIND_DATABASE_NAME:-documind}
-      - MYSQL_ROOT_PASSWORD=${DOCUMIND_DATABASE_PASSWORD:-documind}
-    networks:
-      - documind-network
     healthcheck:
       test: ${DOCUMIND_DATABASE_HEALTH_CMD:-["CMD", "pg_isready", "-U", "documind"]}
-      interval: 30s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 10s
 
-  # Nginx for SSL termination and serving static assets
-  web:
+  webdav:
+    image: bytemark/webdav
+    container_name: documind-webdav
+    restart: unless-stopped
+    ports:
+      - "${DOCUMIND_WEBDAV_PORT:-1900}:80"
+    environment:
+      - AUTH_TYPE=Basic
+      - USERNAME=${DOCUMIND_WEBDAV_USERNAME:-documind}
+      - PASSWORD=${DOCUMIND_WEBDAV_PASSWORD:-documind}
+    volumes:
+      - documind-storage:/var/lib/dav/data
+    depends_on:
+      - app
+
+  backup:
+    build:
+      context: ./docker/backup
+      dockerfile: Dockerfile
+    container_name: documind-backup
+    restart: unless-stopped
+    volumes:
+      - documind-storage:/var/documind/storage:ro
+      - documind-data:/var/documind/data:ro
+      - documind-db:/var/lib/postgresql/data:ro
+      - ./backups:/backups
+    environment:
+      - DOCUMIND_DATABASE_DRIVER=${DOCUMIND_DATABASE_DRIVER:-postgres}
+      - DOCUMIND_DATABASE_SERVER=db:${DOCUMIND_DATABASE_SERVER_PORT:-5432}
+      - DOCUMIND_DATABASE_USER=${DOCUMIND_DATABASE_USER:-documind}
+      - DOCUMIND_DATABASE_PASSWORD=${DOCUMIND_DATABASE_PASSWORD:-documind}
+      - DOCUMIND_DATABASE_NAME=${DOCUMIND_DATABASE_NAME:-documind}
+      - BACKUP_RETENTION_DAYS=${DOCUMIND_BACKUP_RETENTION_DAYS:-30}
+      - BACKUP_SCHEDULE=${DOCUMIND_BACKUP_SCHEDULE:-0 2 * * *}
+    depends_on:
+      - db
+      - app
+
+  nginx:
     image: nginx:alpine
-    restart: always
+    container_name: documind-nginx
+    restart: unless-stopped
     ports:
       - "${DOCUMIND_WEB_PORT:-80}:80"
       - "${DOCUMIND_WEB_SSL_PORT:-443}:443"
@@ -66,45 +86,14 @@ services:
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
       - ./docker/nginx/ssl:/etc/nginx/ssl:ro
-      - documind-storage:/var/documind/storage:ro
+      - ./logs/nginx:/var/log/nginx
     depends_on:
-      - documind
-    networks:
-      - documind-network
+      - app
+      - webdav
     environment:
-      - NGINX_PORT=${DOCUMIND_WEB_PORT:-80}
-      - NGINX_SSL_PORT=${DOCUMIND_WEB_SSL_PORT:-443}
-      - DOCUMIND_SERVICE=documind:8080
-
-  # Automated backup service
-  backup:
-    build:
-      context: ./docker/backup
-    restart: always
-    volumes:
-      - documind-storage:/var/documind/storage:ro
-      - documind-backups:/backups
-    depends_on:
-      - db
-    networks:
-      - documind-network
-    environment:
-      - BACKUP_RETENTION_DAYS=7
-      - BACKUP_SCHEDULE=${DOCUMIND_BACKUP_SCHEDULE:-0 2 * * *}
-      - DOCUMIND_DATABASE_DRIVER=${DOCUMIND_DATABASE_DRIVER:-postgres}
-      - DOCUMIND_DATABASE_SERVER=db:5432
-      - DOCUMIND_DATABASE_USER=${DOCUMIND_DATABASE_USER:-documind}
-      - DOCUMIND_DATABASE_PASSWORD=${DOCUMIND_DATABASE_PASSWORD:-documind}
-      - DOCUMIND_DATABASE_NAME=${DOCUMIND_DATABASE_NAME:-documind}
+      - DOCUMIND_DOMAIN=${DOCUMIND_DOMAIN:-localhost}
 
 volumes:
   documind-storage:
-    driver: local
-  documind-db-data:
-    driver: local
-  documind-backups:
-    driver: local
-
-networks:
-  documind-network:
-    driver: bridge
+  documind-data:
+  documind-db:

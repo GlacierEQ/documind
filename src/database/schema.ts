@@ -110,6 +110,49 @@ export async function initializeSchema(): Promise<void> {
             )
         `);
 
+        // Create annotation table for PDF annotations
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS document_annotations (
+                document_id INTEGER NOT NULL,
+                user_id INTEGER,
+                annotations TEXT,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME,
+                PRIMARY KEY (document_id, user_id),
+                FOREIGN KEY (document_id) REFERENCES documents (id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
+            )
+        `);
+
+        // Create document versions table for version control
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS document_versions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                document_id INTEGER NOT NULL,
+                version_path TEXT NOT NULL,
+                size INTEGER NOT NULL,
+                created_by INTEGER NOT NULL,
+                created_at DATETIME NOT NULL,
+                notes TEXT,
+                FOREIGN KEY (document_id) REFERENCES documents (id) ON DELETE CASCADE,
+                FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE CASCADE
+            )
+        `);
+
+        // Create AI process table to track AI processing status
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS ai_processes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                document_id INTEGER NOT NULL,
+                process_type TEXT NOT NULL,
+                status TEXT NOT NULL,
+                started_at DATETIME NOT NULL,
+                completed_at DATETIME,
+                error TEXT,
+                FOREIGN KEY (document_id) REFERENCES documents (id) ON DELETE CASCADE
+            )
+        `);
+
         // Create admin user if none exists
         const users = await db.query('SELECT COUNT(*) as count FROM users');
         if (users[0].count === 0) {

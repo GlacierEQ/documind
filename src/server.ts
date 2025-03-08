@@ -6,6 +6,7 @@ import { ServerConfig } from './config/config';
 import { setupAuth } from './auth/auth';
 import { apiRouter } from './api/router';
 import { logger } from './utils/logger';
+import { setupApryseViewer } from './pdf/apryse';
 
 export async function startServer(config: ServerConfig) {
     const app = express();
@@ -22,6 +23,9 @@ export async function startServer(config: ServerConfig) {
 
     // API routes
     app.use('/api', apiRouter);
+
+    // Set up PDF viewer with Apryse
+    setupApryseViewer(app);
 
     // Fallback route for SPA
     app.get('*', (req, res) => {

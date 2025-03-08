@@ -8,6 +8,7 @@ import { getConnection } from '../database/connection';
 import { searchDocuments } from '../search/indexer';
 import { deleteDocument } from '../storage/storage';
 import { logger } from '../utils/logger';
+import { mindMapRouter } from './mindmap';
 
 // Load configuration
 const config = loadConfig();
@@ -307,3 +308,4 @@ apiRouter.use('/admin', adminRouter);
 apiRouter.use('/shares', sharesRouter);
 apiRouter.use('/editors', editorsRouter);
 apiRouter.use('/settings', settingsRouter);
+apiRouter.use('/mindmap', mindMapRouter);
