@@ -1,0 +1,121 @@
+name: Auto Deploy
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Test
+        run: npm test
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: |
+            dist/
+            public/
+            package.json
+            package-lock.json
+            .env.template
+            docker/
+
+  build-docker:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: success() && (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')))
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/documind:latest
+            ${{ startsWith(github.ref, 'refs/tags/') && format('{0}/documind:{1}', secrets.DOCKERHUB_USERNAME, github.ref_name) || '' }}
+
+  deploy:
+    needs: build-docker
+    runs-on: ubuntu-latest
+    if: success() && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: ./release
+      
+      - name: Create .env file
+        run: |
+          cp ./release/.env.template ./release/.env
+          # Set up environment variables from secrets
+          echo "DOCUMIND_DATABASE_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ./release/.env
+          echo "DOCUMIND_DATABASE_USER=${{ secrets.DB_USER }}" >> ./release/.env
+          echo "DOCUMIND_DATABASE_NAME=documind" >> ./release/.env
+          echo "DOCUMIND_WEBDAV_PASSWORD=${{ secrets.WEBDAV_PASSWORD }}" >> ./release/.env
+      
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            mkdir -p ~/documind-deploy
+            docker-compose -f ~/documind-deploy/docker-compose.yml down || true
+      
+      - name: Copy files to server
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "./release/*"
+          target: "~/documind-deploy"
+          strip_components: 1
+      
+      - name: Start services on server
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd ~/documind-deploy
+            docker-compose up -d
+            docker-compose ps

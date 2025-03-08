@@ -1,0 +1,122 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.footer {
+    margin-top: auto;
+    padding: 1rem 0;
+    background-color: #f8f9fa;
+}
+
+/* Document card styles */
+.doc-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1.5rem;
+}
+
+.doc-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .12), 0 4px 8px rgba(0, 0, 0, .06);
+}
+
+.doc-card .card-img-top {
+    height: 160px;
+    object-fit: cover;
+    background-color: #e9ecef;
+}
+
+/* Search results highlighting */
+.search-highlight {
+    background-color: yellow;
+    font-weight: bold;
+    padding: 0 2px;
+}
+
+/* Document viewer */
+.document-viewer {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    min-height: 500px;
+}
+
+/* File type icons */
+.file-icon {
+    font-size: 2.5rem;
+}
+
+.file-pdf {
+    color: #e74c3c;
+}
+
+.file-word {
+    color: #3498db;
+}
+
+.file-excel {
+    color: #27ae60;
+}
+
+.file-powerpoint {
+    color: #e67e22;
+}
+
+.file-image {
+    color: #9b59b6;
+}
+
+.file-text {
+    color: #95a5a6;
+}
+
+/* Folder tree */
+.folder-tree {
+    font-size: 1rem;
+}
+
+.folder-tree ul {
+    list-style: none;
+    padding-left: 1.5rem;
+}
+
+.folder-tree li {
+    padding: 5px 0;
+}
+
+.folder-tree .folder-toggle {
+    cursor: pointer;
+}
+
+.folder-tree .folder-name:hover {
+    color: #0d6efd;
+}
+
+/* Drag and drop upload zone */
+.dropzone {
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    padding: 60px 20px;
+    text-align: center;
+    transition: border 0.3s;
+    background-color: #f8f9fa;
+}
+
+.dropzone.active {
+    border-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Loading indicator */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
