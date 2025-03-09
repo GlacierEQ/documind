@@ -9,6 +9,12 @@ import { searchDocuments } from '../search/indexer';
 import { deleteDocument } from '../storage/storage';
 import { logger } from '../utils/logger';
 import { mindMapRouter } from './mindmap';
+import { documentEditorRouter } from './documentEditor';
+import { advancedSearchRouter } from './advancedSearch';
+import { clusteringRouter } from './clustering';
+import { caseSummaryRouter } from './caseSummary';
+import { legalResearchRouter } from './legalResearch';
+import { briefAssistantRouter } from './briefAssistant';
 
 // Load configuration
 const config = loadConfig();
@@ -309,3 +315,9 @@ apiRouter.use('/shares', sharesRouter);
 apiRouter.use('/editors', editorsRouter);
 apiRouter.use('/settings', settingsRouter);
 apiRouter.use('/mindmap', mindMapRouter);
+apiRouter.use('/document-editor', documentEditorRouter);
+apiRouter.use('/advanced-search', advancedSearchRouter);
+apiRouter.use('/clustering', clusteringRouter);
+apiRouter.use('/case-summary', caseSummaryRouter);
+apiRouter.use('/legal-research', legalResearchRouter);
+apiRouter.use('/brief-assistant', briefAssistantRouter);

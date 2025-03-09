@@ -14,6 +14,9 @@ import Anthropic from '@anthropic-ai/sdk';
 // Import local provider functions
 import { getLocalSummary, getLocalAnalysis, getLocalTags } from './localProvider';
 
+// Import Granite provider functions
+import { generateWithGranite, getGraniteEmbedding } from './graniteProvider';
+
 // Result interfaces
 export interface DocumentSummary {
     summary: string;
@@ -348,6 +351,8 @@ async function getAISummary(text: string): Promise<{ summary: string; keyPoints:
                 return await getAnthropicSummary(truncatedText);
             case 'local':
                 return await getLocalModelSummary(truncatedText);
+            case 'granite':
+                return await generateWithGranite(truncatedText, config.ai.maxTokens);
             default:
                 logger.warn(`Unsupported AI provider: ${config.ai.provider}`);
                 return null;
@@ -659,5 +664,55 @@ function trackAPICall(): void {
     if (apiCallsThisHour > 100) {
         const delay = Math.min(apiCallsThisHour - 100, 2000); // Max 2 second delay
         return new Promise(resolve => setTimeout(resolve, delay));
+    }
+}
+
+/**
+ * Generate a summary or response using the configured AI provider
+ */
+export async function summarizeDocument(prompt: string, maxTokens: number = 1000): Promise<string> {
+    const config = loadConfig();
+
+    if (!config.ai || !config.ai.provider || config.ai.provider === 'none') {
+        throw new Error('AI provider not configured');
+    }
+
+    try {
+        switch (config.ai.provider) {
+            case 'granite':
+                return await generateWithGranite(prompt, maxTokens);
+            case 'openai':
+                // ...existing code...
+            // ...other cases...
+            default:
+                throw new Error(`Unsupported AI provider: ${config.ai.provider}`);
+        }
+    } catch (error) {
+        // ...existing code...
+    }
+}
+
+/**
+ * Generate document embeddings using the configured AI provider
+ */
+export async function generateEmbeddings(text: string): Promise<number[]> {
+    const config = loadConfig();
+
+    if (!config.ai || !config.ai.provider || config.ai.provider === 'none') {
+        throw new Error('AI provider not configured');
+    }
+
+    try {
+        switch (config.ai.provider) {
+            case 'granite':
+                return await getGraniteEmbedding(text);
+            case 'openai':
+                // ...existing code...
+            // ...other cases...
+            default:
+                throw new Error(`Unsupported AI provider for embeddings: ${config.ai.provider}`);
+        }
+    } catch (error) {
+        // ...existing code...
     }
 }

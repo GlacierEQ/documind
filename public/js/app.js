@@ -1,4 +1,4 @@
-notepad .env// Utility functions for Documind client-side application
+// Utility functions for Documind client-side application
 
 /**
  * Show admin dashboard
@@ -334,6 +334,44 @@ function renderDocumentView() {
         });
 
     // ...existing code...
+}
+
+/**
+ * Update AI provider section in settings
+ */
+function updateAIProviderSection(provider) {
+  // Hide all provider sections first
+  document.querySelectorAll('.ai-provider-section').forEach(section => {
+    section.classList.add('d-none');
+  });
+  
+  // Show selected provider section
+  if (provider) {
+    const section = document.getElementById(`${provider}-settings-section`);
+    if (section) section.classList.remove('d-none');
+  }
+  
+  // Update AI provider status indicator
+  updateAIProviderStatus(provider);
+}
+
+/**
+ * Initialize AI settings form
+ */
+function initializeAISettingsForm(config) {
+  // ...existing code...
+  
+  // Add Granite section handling
+  if (config.provider === 'granite') {
+    document.getElementById('granite-settings-section').classList.remove('d-none');
+    if (config.granite) {
+      document.getElementById('granite-api-key').value = '********';
+      document.getElementById('granite-model').value = config.granite.model || 'granite-34b-instruct';
+      document.getElementById('granite-embedding-model').value = config.granite.embeddingModel || 'granite-embedding';
+    }
+  }
+  
+  // ...existing code...
 }
 
 // Initialize the application when DOM is fully loaded

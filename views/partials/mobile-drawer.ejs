@@ -1,0 +1,114 @@
+<!-- Mobile drawer component -->
+<div id="mobile-filters-drawer" class="mobile-drawer">
+    <div class="mobile-drawer-header">
+        <h2>Filters</h2>
+        <button class="mobile-drawer-close">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="mobile-drawer-content">
+        <!-- Filters content will be included here -->
+        <div id="mobile-filter-container">
+            <div class="filter-section">
+                <h3>Document Type</h3>
+                <div class="filter-options document-type-filters">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3>Date Range</h3>
+                <div class="date-range-inputs">
+                    <div class="form-group">
+                        <label for="mobile-date-from">From:</label>
+                        <input type="date" id="mobile-date-from" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile-date-to">To:</label>
+                        <input type="date" id="mobile-date-to" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3>Folder</h3>
+                <div class="folder-select-container">
+                    <select id="mobile-folder-filter" class="form-select">
+                        <option value="">All Folders</option>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3>Entity Types</h3>
+                <div class="filter-options entity-type-filters">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-drawer-footer">
+        <div class="d-flex justify-content-between">
+            <button class="modern-btn" id="mobile-reset-filters">Reset Filters</button>
+            <button class="modern-btn modern-btn-primary" id="mobile-apply-filters">Apply Filters</button>
+        </div>
+    </div>
+</div>
+
+<div id="mobile-options-drawer" class="mobile-drawer">
+    <div class="mobile-drawer-header">
+        <h2>Options</h2>
+        <button class="mobile-drawer-close">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="mobile-drawer-content">
+        <div class="mobile-options-menu">
+            <a href="/documents" class="mobile-option-item">
+                <i class="bi bi-files"></i>
+                <span>All Documents</span>
+            </a>
+            <a href="/folders" class="mobile-option-item">
+                <i class="bi bi-folder"></i>
+                <span>Folders</span>
+            </a>
+            <a href="/timeline" class="mobile-option-item">
+                <i class="bi bi-calendar-date"></i>
+                <span>Timeline</span>
+            </a>
+            <a href="/mindmap" class="mobile-option-item">
+                <i class="bi bi-diagram-3"></i>
+                <span>Mind Map</span>
+            </a>
+            <a href="/search" class="mobile-option-item">
+                <i class="bi bi-search"></i>
+                <span>Advanced Search</span>
+            </a>
+            <a href="/document-clusters" class="mobile-option-item">
+                <i class="bi bi-collection"></i>
+                <span>Document Clusters</span>
+            </a>
+            <a href="/case-dashboard" class="mobile-option-item">
+                <i class="bi bi-speedometer2"></i>
+                <span>Case Dashboard</span>
+            </a>
+            <hr>
+            <a href="/settings" class="mobile-option-item">
+                <i class="bi bi-gear"></i>
+                <span>Settings</span>
+            </a>
+            <a href="/help" class="mobile-option-item">
+                <i class="bi bi-question-circle"></i>
+                <span>Help</span>
+            </a>
+            <a href="/logout" class="mobile-option-item">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+</div>

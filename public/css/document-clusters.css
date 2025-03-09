@@ -1,0 +1,268 @@
+/* Document Clusters Visualization Styles */
+
+.clusters-container {
+    background-color: var(--dark-light);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin: 20px 0;
+    overflow: hidden;
+    min-height: 600px;
+}
+
+.clusters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--dark-medium);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.clusters-title h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--light);
+    font-weight: 600;
+}
+
+.clusters-subtitle {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-top: 5px;
+    display: block;
+}
+
+.clusters-visualization {
+    padding: 20px;
+}
+
+.clusters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.cluster-card {
+    background-color: var(--dark-medium);
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cluster-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary);
+}
+
+.cluster-header {
+    margin-bottom: 12px;
+}
+
+.cluster-name {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--light);
+}
+
+.cluster-count {
+    font-size: 0.85rem;
+    color: var(--gray);
+    float: right;
+}
+
+.cluster-keywords {
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.keyword-tag {
+    background-color: rgba(26, 115, 232, 0.2);
+    color: var(--primary-light);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.cluster-keywords.large .keyword-tag {
+    padding: 5px 12px;
+    font-size: 0.9rem;
+}
+
+.cluster-meta {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.cluster-preview {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 12px;
+}
+
+.preview-doc {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    color: var(--light);
+}
+
+.preview-doc i {
+    margin-right: 8px;
+    color: var(--primary-light);
+}
+
+.preview-doc-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.preview-more {
+    font-size: 0.85rem;
+    color: var(--gray);
+    margin-top: 5px;
+    text-align: right;
+}
+
+/* Loading and error states */
+.clusters-loading,
+.error-message,
+.success-message,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    min-height: 400px;
+    color: var(--light);
+}
+
+.loading-spinner {
+    margin-bottom: 20px;
+}
+
+.loading-note {
+    font-size: 0.9rem;
+    color: var(--gray);
+    margin-top: 10px;
+}
+
+.error-message i,
+.success-message i,
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.error-message i {
+    color: var(--danger);
+}
+
+.success-message i {
+    color: var(--success);
+}
+
+.empty-state i {
+    color: var(--gray);
+}
+
+.empty-state-hint {
+    font-size: 0.9rem;
+    color: var(--gray);
+    margin: 10px 0 20px;
+}
+
+.error-details {
+    font-size: 0.9rem;
+    color: var(--danger-light);
+    margin-bottom: 20px;
+}
+
+/* Cluster detail modal */
+.cluster-detail-container {
+    color: var(--light);
+}
+
+.cluster-detail-header {
+    margin-bottom: 20px;
+}
+
+.cluster-detail-header h3 {
+    margin: 0 0 5px 0;
+    color: var(--light);
+}
+
+.cluster-detail-meta {
+    display: flex;
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    gap: 20px;
+}
+
+.cluster-description {
+    color: var(--gray);
+    font-style: italic;
+    margin: 0;
+}
+
+.cluster-detail-section {
+    margin-bottom: 30px;
+}
+
+.cluster-detail-section h4 {
+    font-size: 1.1rem;
+    color: var(--secondary);
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+}
+
+.cluster-documents-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.document-name-cell {
+    display: flex;
+    align-items: center;
+}
+
+.document-icon {
+    margin-right: 10px;
+    color: var(--primary);
+}
+
+.document-name {
+    font-weight: 500;
+}
+
+.similarity-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.similarity-bar {
+    height: 8px;
+    background-color: var(--primary);
+    border-radius: 4px;
+    min-width: 5px;
+}
+
+.action-btn {
+    color: var(--light);
+    font-size: 1.1rem;
+}
+
+.action-btn:hover {
+    color: var(--primary-light);
+}

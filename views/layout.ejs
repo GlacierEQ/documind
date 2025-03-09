@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>
+        <%= title %> - Documind
+    </title>
+
+    <!-- Stylesheets -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/modern-theme.css" rel="stylesheet">
+    <link href="/css/mobile.css" rel="stylesheet">
+
+    <!-- Additional CSS based on page -->
+    <% if (locals.extraStyles) { %>
+        <% extraStyles.forEach(function(style) { %>
+            <link href="<%= style %>" rel="stylesheet">
+            <% }); %>
+                <% } %>
+
+                    <!-- Bootstrap Icons -->
+                    <link href="/css/bootstrap-icons.css" rel="stylesheet">
+
+                    <!-- Favicon -->
+                    <link rel="icon" href="/img/favicon.ico">
+
+                    <!-- Mobile web app capable -->
+                    <meta name="apple-mobile-web-app-capable" content="yes">
+                    <meta name="mobile-web-app-capable" content="yes">
+                    <link rel="apple-touch-icon" href="/img/app-icon.png">
+                    <meta name="theme-color" content="#1a202c">
+</head>
+
+<body class="dark-theme">
+    <%- include('partials/navbar') %>
+
+        <div class="content-wrapper">
+            <% if (locals.showSidebar !==false) { %>
+                <%- include('partials/sidebar') %>
+                    <% } %>
+
+                        <div class="main-content <%= locals.showSidebar === false ? 'full-width' : '' %>">
+                            <% if (locals.breadcrumbs) { %>
+                                <%- include('partials/breadcrumbs', { breadcrumbs: locals.breadcrumbs }) %>
+                                    <% } %>
+
+                                        <% if (locals.flash && (locals.flash.success || locals.flash.error)) { %>
+                                            <div class="alerts-container">
+                                                <% if (locals.flash.success) { %>
+                                                    <div class="alert alert-success alert-dismissible fade show"
+                                                        role="alert">
+                                                        <%= locals.flash.success %>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="alert" aria-label="Close"></button>
+                                                    </div>
+                                                    <% } %>
+                                                        <% if (locals.flash.error) { %>
+                                                            <div class="alert alert-danger alert-dismissible fade show"
+                                                                role="alert">
+                                                                <%= locals.flash.error %>
+                                                                    <button type="button" class="btn-close"
+                                                                        data-bs-dismiss="alert"
+                                                                        aria-label="Close"></button>
+                                                            </div>
+                                                            <% } %>
+                                            </div>
+                                            <% } %>
+
+                                                <%- body %>
+                        </div>
+        </div>
+
+        <!-- Include mobile drawers -->
+        <%- include('partials/mobile-drawer') %>
+
+            <!-- Scripts -->
+            <script src="/js/bootstrap.bundle.min.js"></script>
+            <script src="/js/app.js"></script>
+            <script src="/js/mobile.js"></script>
+
+            <!-- Additional JS based on page -->
+            <% if (locals.extraScripts) { %>
+                <% extraScripts.forEach(function(script) { %>
+                    <script src="<%= script %>"></script>
+                    <% }); %>
+                        <% } %>
+</body>
+
+</html>

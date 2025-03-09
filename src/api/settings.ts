@@ -199,3 +199,70 @@ settingsRouter.put('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to update settings' });
     }
 });
+
+// Handle AI provider settings update
+settingsRouter.post('/ai', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const { 
+            provider, maxTokens, temperature,
+            openaiApiKey, openaiModel, openaiEmbeddingModel,
+            azureApiKey, azureEndpoint, azureDeploymentName,
+            anthropicApiKey, anthropicModel,
+            cohereApiKey, cohereModel,
+            localModelPath, localModelConfig,
+            // Add Granite settings
+            graniteApiKey, graniteModel, graniteEmbeddingModel
+        } = req.body;
+        
+        // Basic validation
+        if (!provider) {
+            return res.status(400).json({ error: 'AI provider is required' });
+        }
+        
+        // Get current config
+        const config = loadConfig();
+        
+        // Update AI configuration
+        config.ai = {
+            ...config.ai,
+            provider,
+            maxTokens: parseInt(maxTokens) || 2000,
+            temperature: parseFloat(temperature) || 0.2,
+        };
+        
+        // Provider-specific settings
+        if (provider === 'openai' && openaiApiKey) {
+            // ...existing code...
+        } 
+        // ...other providers...
+        
+        // Add Granite configuration
+        else if (provider === 'granite' && graniteApiKey) {
+            config.ai.granite = {
+                apiKey: graniteApiKey,
+                model: graniteModel || 'granite-34b-instruct',
+                embeddingModel: graniteEmbeddingModel || 'granite-embedding'
+            };
+        }
+        
+        // Save updated config
+        await saveConfig(config);
+        
+        // Return sanitized config (without API keys)
+        const sanitizedConfig = { ...config };
+        
+        // ...existing code...
+        
+        // Sanitize Granite API key
+        if (sanitizedConfig.ai?.granite?.apiKey) {
+            sanitizedConfig.ai.granite.apiKey = '********';
+        }
+        
+        res.json({
+            success: true,
+            config: sanitizedConfig.ai
+        });
+    } catch (error) {
+        // ...existing code...
+    }
+});

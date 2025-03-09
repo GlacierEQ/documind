@@ -70,7 +70,7 @@ export interface EditorsConfig {
 
 // Enhanced AI configuration with local model settings
 export interface AIConfig {
-    provider: 'openai' | 'azure' | 'anthropic' | 'local' | 'none';
+    provider: 'openai' | 'azure' | 'anthropic' | 'local' | 'none' | 'cohere' | 'granite';
     apiKey?: string;
     model?: string;
     maxTokens: number;
@@ -89,6 +89,15 @@ export interface AIConfig {
         modelType: 'deepseek' | 'llama';
         modelPath?: string;
         pythonPath?: string;
+    };
+    granite?: {
+        apiKey: string;
+        endpoint?: string;
+        model?: string;
+        temperature?: number;
+        topP?: number;
+        embeddingEndpoint?: string;
+        embeddingModel?: string;
     };
 }
 
@@ -222,7 +231,7 @@ export function loadConfig(): Config {
 
         // Add AI configuration
         ai: {
-            provider: (process.env.DOCUMIND_AI_PROVIDER as 'openai' | 'azure' | 'anthropic' | 'local' | 'none') || 'none',
+            provider: (process.env.DOCUMIND_AI_PROVIDER as 'openai' | 'azure' | 'anthropic' | 'local' | 'none' | 'cohere' | 'granite') || 'none',
             apiKey: process.env.DOCUMIND_AI_API_KEY,
             model: process.env.DOCUMIND_AI_MODEL || 'gpt-3.5-turbo',
             maxTokens: parseInt(process.env.DOCUMIND_AI_MAX_TOKENS || '1024'),
@@ -241,6 +250,15 @@ export function loadConfig(): Config {
                 modelType: (process.env.DOCUMIND_AI_LOCAL_MODEL_TYPE as 'deepseek' | 'llama') || 'deepseek',
                 modelPath: process.env.DOCUMIND_AI_LOCAL_MODEL_PATH,
                 pythonPath: process.env.DOCUMIND_AI_PYTHON_PATH || 'python'
+            },
+            granite: {
+                apiKey: process.env.DOCUMIND_GRANITE_API_KEY || '',
+                endpoint: process.env.DOCUMIND_GRANITE_ENDPOINT,
+                model: process.env.DOCUMIND_GRANITE_MODEL,
+                temperature: parseFloat(process.env.DOCUMIND_GRANITE_TEMPERATURE || '0.3'),
+                topP: parseFloat(process.env.DOCUMIND_GRANITE_TOP_P || '1.0'),
+                embeddingEndpoint: process.env.DOCUMIND_GRANITE_EMBEDDING_ENDPOINT,
+                embeddingModel: process.env.DOCUMIND_GRANITE_EMBEDDING_MODEL
             }
         },
 

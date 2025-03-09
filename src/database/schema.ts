@@ -153,6 +153,128 @@ export async function initializeSchema(): Promise<void> {
             )
         `);
 
+        // Create document templates table
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS document_templates (
+                id INTEGER PRIMARY KEY ${config.database.driver === 'postgres' ? 'GENERATED ALWAYS AS IDENTITY' : 'AUTOINCREMENT'},
+                name TEXT NOT NULL,
+                description TEXT,
+                content TEXT NOT NULL,
+                category TEXT,
+                thumbnail TEXT,
+                created_by INTEGER,
+                created_at DATETIME,
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        `);
+
+        // Create document clusters table
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS document_clusters (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                description TEXT,
+                keywords TEXT,
+                user_id INTEGER NOT NULL,
+                created_at DATETIME,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        `);
+
+        // Create cluster documents table
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS cluster_documents (
+                cluster_id TEXT NOT NULL,
+                document_id INTEGER NOT NULL,
+                similarity REAL NOT NULL,
+                PRIMARY KEY (cluster_id, document_id),
+                FOREIGN KEY (cluster_id) REFERENCES document_clusters(id),
+                FOREIGN KEY (document_id) REFERENCES documents(id)
+            )
+        `);
+
+        // Legal database integration tables
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS legal_document_cache (
+                id INTEGER PRIMARY KEY ${config.database.driver === 'postgres' ? 'GENERATED ALWAYS AS IDENTITY' : 'AUTOINCREMENT'},
+                external_id TEXT NOT NULL,
+                source TEXT NOT NULL,
+                title TEXT,
+                citation TEXT,
+                court TEXT,
+                date DATETIME,
+                content TEXT,
+                content_type TEXT DEFAULT 'text/html',
+                metadata TEXT,
+                retrieved_at DATETIME,
+                UNIQUE(external_id, source)
+            )
+        `);
+        
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS legal_references (
+                id INTEGER PRIMARY KEY ${config.database.driver === 'postgres' ? 'GENERATED ALWAYS AS IDENTITY' : 'AUTOINCREMENT'},
+                document_id INTEGER NOT NULL,
+                external_id TEXT NOT NULL,
+                source TEXT NOT NULL,
+                citation TEXT NOT NULL,
+                context TEXT,
+                added_by INTEGER NOT NULL,
+                added_at DATETIME,
+                FOREIGN KEY (document_id) REFERENCES documents(id),
+                FOREIGN KEY (added_by) REFERENCES users(id)
+            )
+        `);
+        
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS search_history (
+                id INTEGER PRIMARY KEY ${config.database.driver === 'postgres' ? 'GENERATED ALWAYS AS IDENTITY' : 'AUTOINCREMENT'},
+                user_id INTEGER NOT NULL,
+                query TEXT NOT NULL,
+                source TEXT NOT NULL,
+                created_at DATETIME,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        `);
+        
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS document_retrieve_history (
+                id INTEGER PRIMARY KEY ${config.database.driver === 'postgres' ? 'GENERATED ALWAYS AS IDENTITY' : 'AUTOINCREMENT'},
+                user_id INTEGER NOT NULL,
+                external_id TEXT NOT NULL,
+                source TEXT NOT NULL,
+                retrieved_at DATETIME,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        `);
+
+        // Brief Assistant tables
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS document_generation_history (
+                id INTEGER PRIMARY KEY ${config.database.driver === 'postgres' ? 'GENERATED ALWAYS AS IDENTITY' : 'AUTOINCREMENT'},
+                user_id INTEGER NOT NULL,
+                document_type TEXT NOT NULL,
+                word_count INTEGER,
+                jurisdiction TEXT,
+                tone TEXT,
+                created_at DATETIME,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        `);
+        
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS section_generation_history (
+                id INTEGER PRIMARY KEY ${config.database.driver === 'postgres' ? 'GENERATED ALWAYS AS IDENTITY' : 'AUTOINCREMENT'},
+                user_id INTEGER NOT NULL,
+                document_type TEXT NOT NULL,
+                section_type TEXT NOT NULL,
+                word_count INTEGER,
+                tone TEXT,
+                created_at DATETIME,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        `);
+
         // Create admin user if none exists
         const users = await db.query('SELECT COUNT(*) as count FROM users');
         if (users[0].count === 0) {
