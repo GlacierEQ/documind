@@ -1,0 +1,208 @@
+# Advanced Makefile for Documind
+# Handles build, test, clean, and maintenance operations
+
+# Configuration
+SHELL := /bin/bash
+.SHELLFLAGS := -eu -o pipefail -c
+.ONESHELL:
+MAKEFLAGS += --warn-undefined-variables --no-builtin-rules
+
+# Directories
+BUILD_DIR := build
+DIST_DIR := dist
+LOG_DIR := logs
+SOURCE_DIR := src
+TEST_DIR := tests
+DOCKER_DIR := docker
+
+# Commands
+DOCKER_COMPOSE := docker-compose
+NODE := node
+NPM := npm
+CMAKE := cmake
+NINJA := ninja
+ESLINT := ./node_modules/.bin/eslint
+JEST := ./node_modules/.bin/jest
+TS_NODE := ./node_modules/.bin/ts-node
+TSC := ./node_modules/.bin/tsc
+
+# Colors
+COLOR_RESET := \033[0m
+COLOR_GREEN := \033[1;32m
+COLOR_YELLOW := \033[1;33m
+COLOR_CYAN := \033[1;36m
+COLOR_RED := \033[1;31m
+COLOR_BLUE := \033[1;34m
+
+# Default target
+.PHONY: all
+all: help
+
+# Show help
+.PHONY: help
+help:
+	@echo -e "${COLOR_CYAN}Documind Advanced Build System${COLOR_RESET}"
+	@echo -e "${COLOR_YELLOW}Available commands:${COLOR_RESET}"
+	@echo -e "  ${COLOR_GREEN}make build${COLOR_RESET}        - Build the application"
+	@echo -e "  ${COLOR_GREEN}make rebuild${COLOR_RESET}      - Clean and rebuild from scratch"
+	@echo -e "  ${COLOR_GREEN}make clean${COLOR_RESET}        - Remove build artifacts"
+	@echo -e "  ${COLOR_GREEN}make deep-clean${COLOR_RESET}   - Remove all generated files (build, node_modules, etc.)"
+	@echo -e "  ${COLOR_GREEN}make test${COLOR_RESET}         - Run all tests"
+	@echo -e "  ${COLOR_GREEN}make lint${COLOR_RESET}         - Run code linting"
+	@echo -e "  ${COLOR_GREEN}make fix${COLOR_RESET}          - Automatically fix linting issues"
+	@echo -e "  ${COLOR_GREEN}make analyze${COLOR_RESET}      - Run static code analysis"
+	@echo -e "  ${COLOR_GREEN}make docker-build${COLOR_RESET} - Build Docker images"
+	@echo -e "  ${COLOR_GREEN}make docker-up${COLOR_RESET}    - Start Docker containers"
+	@echo -e "  ${COLOR_GREEN}make docker-down${COLOR_RESET}  - Stop Docker containers"
+	@echo -e "  ${COLOR_GREEN}make deploy${COLOR_RESET}       - Deploy to production (requires configuration)"
+	@echo -e "  ${COLOR_GREEN}make debug${COLOR_RESET}        - Start the application in debug mode"
+	@echo -e "  ${COLOR_GREEN}make logs${COLOR_RESET}         - View application logs"
+	@echo -e "  ${COLOR_GREEN}make backup${COLOR_RESET}       - Create a backup"
+	@echo -e "  ${COLOR_GREEN}make install${COLOR_RESET}      - Install dependencies"
+	@echo -e ""
+	@echo -e "${COLOR_YELLOW}Advanced commands:${COLOR_RESET}"
+	@echo -e "  ${COLOR_GREEN}make cmake${COLOR_RESET}        - Generate build files using CMake"
+	@echo -e "  ${COLOR_GREEN}make ninja${COLOR_RESET}        - Build using Ninja build system"
+	@echo -e "  ${COLOR_GREEN}make analyze-deep${COLOR_RESET} - Run deep code analysis with CMake"
+
+# Install dependencies
+.PHONY: install
+install:
+	@echo -e "${COLOR_CYAN}Installing dependencies...${COLOR_RESET}"
+	@$(NPM) install
+	@echo -e "${COLOR_GREEN}Dependencies installed successfully!${COLOR_RESET}"
+
+# Build the application
+.PHONY: build
+build:
+	@echo -e "${COLOR_CYAN}Building application...${COLOR_RESET}"
+	@mkdir -p $(DIST_DIR)
+	@$(TSC)
+	@echo -e "${COLOR_GREEN}Build completed successfully!${COLOR_RESET}"
+
+# Clean and rebuild
+.PHONY: rebuild
+rebuild: clean build
+
+# Clean build artifacts
+.PHONY: clean
+clean:
+	@echo -e "${COLOR_CYAN}Cleaning build artifacts...${COLOR_RESET}"
+	@rm -rf $(DIST_DIR)
+	@rm -rf $(BUILD_DIR)
+	@echo -e "${COLOR_GREEN}Clean completed successfully!${COLOR_RESET}"
+
+# Deep clean (remove all generated files)
+.PHONY: deep-clean
+deep-clean: clean
+	@echo -e "${COLOR_CYAN}Deep cleaning project...${COLOR_RESET}"
+	@rm -rf node_modules
+	@rm -rf $(LOG_DIR)/*.log
+	@rm -rf coverage
+	@rm -rf .nyc_output
+	@rm -rf .env.local
+	@echo -e "${COLOR_GREEN}Deep clean completed successfully!${COLOR_RESET}"
+
+# Run all tests
+.PHONY: test
+test:
+	@echo -e "${COLOR_CYAN}Running tests...${COLOR_RESET}"
+	@$(JEST)
+	@echo -e "${COLOR_GREEN}Tests completed successfully!${COLOR_RESET}"
+
+# Run linting
+.PHONY: lint
+lint:
+	@echo -e "${COLOR_CYAN}Running linting...${COLOR_RESET}"
+	@$(ESLINT) "$(SOURCE_DIR)/**/*.{ts,js}"
+	@echo -e "${COLOR_GREEN}Linting completed successfully!${COLOR_RESET}"
+
+# Fix linting issues
+.PHONY: fix
+fix:
+	@echo -e "${COLOR_CYAN}Fixing linting issues...${COLOR_RESET}"
+	@$(ESLINT) --fix "$(SOURCE_DIR)/**/*.{ts,js}"
+	@echo -e "${COLOR_GREEN}Linting fixes applied successfully!${COLOR_RESET}"
+
+# Run static code analysis
+.PHONY: analyze
+analyze: cmake
+	@echo -e "${COLOR_CYAN}Running code analysis...${COLOR_RESET}"
+	@cd $(BUILD_DIR) && $(CMAKE) --build . --target analyze
+	@echo -e "${COLOR_GREEN}Code analysis completed!${COLOR_RESET}"
+
+# Docker build
+.PHONY: docker-build
+docker-build:
+	@echo -e "${COLOR_CYAN}Building Docker images...${COLOR_RESET}"
+	@$(DOCKER_COMPOSE) build
+	@echo -e "${COLOR_GREEN}Docker build completed successfully!${COLOR_RESET}"
+
+# Start Docker containers
+.PHONY: docker-up
+docker-up:
+	@echo -e "${COLOR_CYAN}Starting Docker containers...${COLOR_RESET}"
+	@$(DOCKER_COMPOSE) up -d
+	@echo -e "${COLOR_GREEN}Docker containers started successfully!${COLOR_RESET}"
+
+# Stop Docker containers
+.PHONY: docker-down
+docker-down:
+	@echo -e "${COLOR_CYAN}Stopping Docker containers...${COLOR_RESET}"
+	@$(DOCKER_COMPOSE) down
+	@echo -e "${COLOR_GREEN}Docker containers stopped successfully!${COLOR_RESET}"
+
+# Deploy to production
+.PHONY: deploy
+deploy:
+	@echo -e "${COLOR_CYAN}Deploying to production...${COLOR_RESET}"
+	@bash scripts/production-orchestrator.sh --tag=latest
+	@echo -e "${COLOR_GREEN}Deployment completed successfully!${COLOR_RESET}"
+
+# Start in debug mode
+.PHONY: debug
+debug:
+	@echo -e "${COLOR_CYAN}Starting in debug mode...${COLOR_RESET}"
+	@NODE_ENV=development $(NODE) --inspect $(DIST_DIR)/index.js
+
+# View logs
+.PHONY: logs
+logs:
+	@echo -e "${COLOR_CYAN}Viewing application logs...${COLOR_RESET}"
+	@tail -f $(LOG_DIR)/*.log
+
+# Create backup
+.PHONY: backup
+backup:
+	@echo -e "${COLOR_CYAN}Creating backup...${COLOR_RESET}"
+	@bash scripts/backup.sh
+	@echo -e "${COLOR_GREEN}Backup created successfully!${COLOR_RESET}"
+
+# Generate CMake build files
+.PHONY: cmake
+cmake:
+	@echo -e "${COLOR_CYAN}Generating build files with CMake...${COLOR_RESET}"
+	@mkdir -p $(BUILD_DIR)
+	@cd $(BUILD_DIR) && $(CMAKE) -G Ninja ..
+	@echo -e "${COLOR_GREEN}CMake generation completed successfully!${COLOR_RESET}"
+
+# Build with Ninja
+.PHONY: ninja
+ninja: cmake
+	@echo -e "${COLOR_CYAN}Building with Ninja...${COLOR_RESET}"
+	@cd $(BUILD_DIR) && $(NINJA)
+	@echo -e "${COLOR_GREEN}Ninja build completed successfully!${COLOR_RESET}"
+
+# Deep code analysis using CMake
+.PHONY: analyze-deep
+analyze-deep: cmake
+	@echo -e "${COLOR_CYAN}Running deep code analysis...${COLOR_RESET}"
+	@cd $(BUILD_DIR) && $(CMAKE) --build . --target deep-analyze
+	@echo -e "${COLOR_GREEN}Deep code analysis completed!${COLOR_RESET}"
+
+# Repair code issues automatically
+.PHONY: repair
+repair: fix
+	@echo -e "${COLOR_CYAN}Repairing code issues...${COLOR_RESET}"
+	@cd $(BUILD_DIR) && $(CMAKE) --build . --target auto-repair
+	@echo -e "${COLOR_GREEN}Code repair completed!${COLOR_RESET}"

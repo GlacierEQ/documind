@@ -1,0 +1,67 @@
+# Advanced Ninja build file for Documind
+# Auto-generated - do not edit manually
+
+# Global variables
+ninja_required_version = 1.8
+builddir = build
+distdir = dist
+srcdir = src
+testdir = tests
+toolsdir = tools
+
+# Compiler and tool definitions
+tsc = ./node_modules/.bin/tsc
+eslint = ./node_modules/.bin/eslint
+jest = ./node_modules/.bin/jest
+node = node
+docker = docker
+npm = npm
+
+# Rules
+rule typescript
+  command = $tsc
+  description = Compiling TypeScript
+  
+rule lint
+  command = $eslint $in
+  description = Linting $in
+  
+rule test
+  command = $jest $in --ci
+  description = Testing $in
+  
+rule docker_build
+  command = $docker build -t documind:$tag -f $dockerfile .
+  description = Building Docker image documind:$tag
+  
+rule docker_push
+  command = $docker push $registry/documind:$tag
+  description = Pushing Docker image to $registry
+  
+rule cmake
+  command = cmake -G Ninja -B $builddir $options
+  description = Generating build files with CMake
+
+# Primary targets
+build typescript: typescript
+build lint: lint $srcdir
+build test: test $testdir
+build docker: docker_build
+  dockerfile = docker/Dockerfile
+  tag = latest
+
+build analyze: phony
+  command = $node scripts/crawl-code.js
+
+# Generate the build files with recursive dependencies
+build cmake: cmake
+  options = -DDOCUMIND_ENABLE_TESTING=ON -DDOCUMIND_ENABLE_ANALYSIS=ON
+
+build recursive_build: phony cmake
+  command = ninja -C $builddir
+
+# The main target that builds everything
+build all: phony typescript lint test docker recursive_build
+
+# Default target
+default all

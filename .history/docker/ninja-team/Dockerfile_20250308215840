@@ -1,0 +1,65 @@
+FROM ubuntu:22.04
+
+# Install required dependencies
+RUN apt-get update && apt-get install -y \
+    bash \
+    curl \
+    docker.io \
+    jq \
+    git \
+    npm \
+    nodejs \
+    python3-pip \
+    netcat-openbsd \
+    wget \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install yq for YAML processing
+RUN pip3 install yq
+
+# Create directory structure
+RUN mkdir -p /app/scripts/ninja-team \
+    /app/deploy/ninja-config \
+    /app/deploy/manifests \
+    /app/logs/ninja-deployment \
+    /app/build \
+    /app/backups
+
+# Set working directory
+WORKDIR /app
+
+# Copy all ninja team scripts
+COPY scripts/ninja-team/*.sh /app/scripts/ninja-team/
+COPY scripts/ninja-team-orchestrator.sh /app/scripts/
+COPY scripts/deploy-ninja-team.sh /app/scripts/
+COPY scripts/monitor-deployment.sh /app/scripts/
+COPY scripts/ninja-scan.sh /app/scripts/
+COPY scripts/compile-ninja-team.sh /app/scripts/
+COPY scripts/setup-ninja-team.sh /app/scripts/
+COPY scripts/auto-deploy.sh /app/scripts/
+COPY ninja-team.cmake /app/
+
+# Make scripts executable
+RUN chmod +x /app/scripts/*.sh \
+    && chmod +x /app/scripts/ninja-team/*.sh
+
+# Copy configuration files
+COPY deploy/ninja-config/team-config.json /app/deploy/ninja-config/
+COPY deploy/manifests/*.yaml /app/deploy/manifests/
+
+# Create a wrapper script for the container
+COPY docker/ninja-team/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Environment variables
+ENV DOCKER_HOST=tcp://docker-proxy:2375
+ENV NINJA_ENV=production
+ENV NINJA_TAG=latest
+ENV NINJA_MODE=compose
+
+# Set the entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Default command
+CMD ["--help"]

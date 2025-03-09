@@ -1,0 +1,87 @@
+---
+- name: Configure Documind Production Servers
+  hosts: documind_servers
+  become: yes
+  vars_files:
+    - vars/main.yml
+    - vars/{{ env }}.yml
+
+  pre_tasks:
+    - name: Check if Ansible version is supported
+      assert:
+        that: "ansible_version.full is version('2.9.0', '>=')"
+        msg: "Ansible 2.9.0 or higher required"
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400  # 24 hours
+      when: ansible_os_family == "Debian"
+
+    - name: Set up host facts
+      setup:
+        gather_subset:
+          - '!all'
+          - '!min'
+          - 'hardware'
+          - 'network'
+          - 'virtual'
+
+  roles:
+    - role: common
+      tags: ['common']
+
+    - role: docker
+      tags: ['docker']
+      when: enable_docker | bool
+
+    - role: monitoring
+      tags: ['monitoring']
+      when: enable_monitoring | bool
+
+    - role: security
+      tags: ['security']
+
+    - role: backup
+      tags: ['backup']
+
+    - role: documind
+      tags: ['app']
+
+  post_tasks:
+    - name: Test application health
+      uri:
+        url: "http://localhost:3000/api/v1/health"
+        return_content: yes
+      register: health_check
+      failed_when: "'healthy' not in health_check.content"
+      retries: 5
+      delay: 10
+      until: health_check is success
+      tags: ['verify']
+      ignore_errors: yes
+
+    - name: Service status
+      service_facts:
+      register: service_state
+      tags: ['verify']
+
+    - name: Verify Docker is running
+      assert:
+        that: "service_state.ansible_facts.services['docker.service'].state == 'running'"
+        msg: "Docker is not running"
+      tags: ['verify']
+      when: enable_docker | bool
+
+    - name: Installation summary
+      debug:
+        msg: |
+          Documind Installation Summary:
+          -----------------------------
+          Environment: {{ env }}
+          Host: {{ inventory_hostname }}
+          Docker status: {{ 'Running' if (service_state.ansible_facts.services['docker.service'].state == 'running') else 'Not running' }}
+          Application status: {{ 'Healthy' if health_check is success else 'Unhealthy' }}
+          Monitoring: {{ 'Enabled' if enable_monitoring else 'Disabled' }}
+          Automated backups: {{ 'Enabled' if enable_backups else 'Disabled' }}
+      tags: ['verify']
