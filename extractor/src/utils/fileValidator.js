@@ -5,6 +5,9 @@ import axios from 'axios';
  * @param {string} file - The URL to the file
  * @returns {Promise<boolean>} - Resolves to true if the file is valid, false otherwise
  */
+import fs from 'fs';
+import path from 'path';
+
 export async function isValidFile(file) {
     const allowedExtensions = ['pdf', 'png', 'jpg', 'jpeg', 'txt', 'docx', 'html'];
     const allowedMimeTypes = {
@@ -17,13 +20,22 @@ export async function isValidFile(file) {
         html: 'text/html',
     };
 
-    const urlPath = new URL(file).pathname;
+    let urlPath = file;
+    let isLocal = false;
+    try {
+        urlPath = new URL(file).pathname;
+    } catch (e) {
+        // Not a URL, treat as local file
+        isLocal = true;
+        urlPath = file;
+    }
     const extensionRegex = new RegExp(`\\.(${allowedExtensions.join('|')})$`, 'i');
-
     if (!extensionRegex.test(urlPath)) {
         return false;
     }
-
+    if (isLocal) {
+        return fs.existsSync(file);
+    }
     // Optional: Check the MIME type if query parameters are used
     try {
         const response = await axios.head(file);
