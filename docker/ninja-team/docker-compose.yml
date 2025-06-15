@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  ninja-team:
+    build:
+      context: ../..
+      dockerfile: docker/ninja-team/Dockerfile
+    image: ninja-team:latest
+    container_name: ninja-team
+    volumes:
+      # Mount Docker socket for Docker-in-Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount config directory for persistence
+      - ../../deploy:/app/deploy:rw
+      # Mount logs for persistence
+      - ../../logs:/app/logs:rw
+      # Mount backups for persistence
+      - ../../backups:/app/backups:rw
+    environment:
+      - NINJA_ENV=production
+      - NINJA_TAG=latest
+      - NINJA_MODE=compose
+    networks:
+      - ninja-network
+
+  # Optional Portainer for management UI
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: ninja-portainer
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - ninja-network
+
+networks:
+  ninja-network:
+    driver: bridge
+
+volumes:
+  portainer_data:

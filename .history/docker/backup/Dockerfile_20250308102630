@@ -1,0 +1,33 @@
+FROM alpine:3.16
+
+# Install required packages
+RUN apk add --no-cache \
+    bash \
+    postgresql-client \
+    tzdata \
+    tar \
+    gzip \
+    curl \
+    ca-certificates
+
+# Create directories
+RUN mkdir -p /data/app /data/db /backups /scripts
+
+# Copy scripts
+COPY backup.sh /scripts/
+COPY entrypoint.sh /scripts/
+
+# Make scripts executable
+RUN chmod +x /scripts/*.sh
+
+# Set environment
+ENV POSTGRES_HOST=db \
+    POSTGRES_PORT=5432 \
+    POSTGRES_DB=documind \
+    POSTGRES_USER=documind \
+    BACKUP_SCHEDULE="0 0 * * *" \
+    RETENTION_DAYS=7 \
+    TZ=UTC
+
+# Set entrypoint
+ENTRYPOINT ["/scripts/entrypoint.sh"]

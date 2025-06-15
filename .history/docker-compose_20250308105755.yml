@@ -1,0 +1,191 @@
+version: '3.8'
+
+services:
+  # Main application
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - documind-data:/app/data
+      - ./logs:/app/logs
+    env_file:
+      - .env.docker
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - REDIS_HOST=redis
+    networks:
+      - documind-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Database service
+  db:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/db/init:/docker-entrypoint-initdb.d
+      - ./docker/db/postgres.conf:/etc/postgresql/postgresql.conf
+    env_file:
+      - .env.docker
+    environment:
+      - POSTGRES_USER=${DB_USER:-documind}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-documind}
+      - POSTGRES_DB=${DB_NAME:-documind}
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    networks:
+      - documind-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER:-documind}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and session storage
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes
+    networks:
+      - documind-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Nginx for serving static files and reverse proxy
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./public:/usr/share/nginx/html:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - app
+    networks:
+      - documind-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  # Backup service (scheduled backups)
+  backup:
+    build:
+      context: ./docker/backup
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - documind-data:/data/app:ro
+      - postgres-data:/data/db:ro
+      - backups:/backups
+    environment:
+      - BACKUP_SCHEDULE=${BACKUP_SCHEDULE:-0 0 * * *}  # Default: everyday at midnight
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=${DB_USER:-documind}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-documind}
+      - POSTGRES_DB=${DB_NAME:-documind}
+      - RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-7}
+      - BACKUP_COMPRESSION_LEVEL=6
+      - S3_BACKUP_ENABLED=${S3_BACKUP_ENABLED:-false}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - S3_BUCKET=${S3_BUCKET}
+      - NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL}
+    networks:
+      - documind-network
+
+  # Monitoring with Prometheus + Grafana (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - documind-network
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    networks:
+      - documind-network
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+    profiles:
+      - monitoring
+
+networks:
+  documind-network:
+    driver: bridge
+
+volumes:
+  documind-data:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  backups:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local

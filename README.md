@@ -1,268 +1,195 @@
-
 <a href="https://discord.gg/w2Ejj36hRU">
   <img src="https://user-images.githubusercontent.com/31022056/158916278-4504b838-7ecb-4ab9-a900-7dc002aade78.png" alt="Join us on Discord" width="200px">
 </a>
 
-# Documind
+# Documind: Document Management System
 
-**`Documind`** is an advanced document processing tool that leverages AI to extract structured data from PDFs. It is built to handle PDF conversions, extract relevant information, and format results as specified by customizable schemas.
+Documind is a powerful, self-hosted document management system designed for personal and organizational use. It provides secure storage, advanced search capabilities, and efficient document organization.
 
-## **Features**
+## Features
 
-- Extracts structured JSON output from unstructured documents.
-- Converts documents into Markdown format.
-- Supports custom schemas for data extraction.
-- Includes pre-defined templates for common schemas.
-- Works with OpenAI and custom LLM setups (Llava and Llama3.2-vision).
-- Auto-generates schemas based on document content.
+- **Document Storage & Organization**: Upload, categorize, and manage documents of various formats
+- **Advanced Search**: Full-text search with OCR for images and PDFs
+- **User Authentication**: Multiple authentication methods (Password, OIDC, LDAP)
+- **Access Control**: Role-based permissions and document sharing
+- **Responsive UI**: Modern web interface that works on desktop and mobile devices
+- **Flexible Deployment**: Run with Docker or as a native application
 
-### Try the Hosted Version 🚀
+## System Requirements
 
-The hosted version provides a seamless experience with fully managed APIs, so you can skip the setup and start extracting data right away. [Join the beta](https://documind.xyz) to get access to the hosted service. 
+The hosted version provides a seamless experience with fully managed APIs, so you can skip the setup and start extracting data right away. [Join the beta](https://documind.xyz) to get access to the hosted service.
+- **For Docker deployment**:
+  - Docker and Docker Compose
+  - 2GB RAM (minimum)
+  - 10GB disk space (minimum)
 
-## Roadmap
+- **For native deployment**:
+  - Node.js 16+
+  - PostgreSQL, MySQL, or SQLite
+  - 2GB RAM (minimum)
+  - 10GB disk space (minimum)
 
-### ✅ Released Features  
-- [x] PDF Extraction  
-- [x] Basic Schema Definition  
-- [x] Structured JSON Output  
-- [x] Template Schemas  
-- [x] Local LLM Integration (Llama3.2)  
-- [x] Auto-generated Schemas  
-- [x] Document Formatters (Text and Markdown)  
-- [x] Multi-file Support (DOCX, PNG, JPG, TXT, HTML)  
+## Quick Start
+
+### ✅ Released Features
+- [x] PDF Extraction
+- [x] Basic Schema Definition
+- [x] Structured JSON Output
+- [x] Template Schemas
+- [x] Local LLM Integration (Llama3.2)
+- [x] Auto-generated Schemas
+- [x] Document Formatters (Text and Markdown)
+- [x] Multi-file Support (DOCX, PNG, JPG, TXT, HTML)
 - [x] Additional Schema Field Types (Boolean and Enum)
 
-### 🚧 Upcoming Features  
-- [ ] Additional Models (Local and cloud)  
-- [ ] Image Extraction  
-- [ ] Advanced Document Formatters  
+### 🚧 Upcoming Features
+- [ ] Additional Models (Local and cloud)
+- [ ] Image Extraction
+- [ ] Advanced Document Formatters
 - [ ] Data Classification
 - [ ] Use Your Fine-tuned Models
+### Using Docker (Recommended)
 
-## **Requirements**
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/documind.git
+   cd documind
+   ```
 
-Before using **`documind`**, ensure the following software dependencies are installed:
+2. Create an environment file:
+   ```bash
+   cp .env.template .env
+   ```
 
-### **System Dependencies**
+3. Edit the `.env` file with your preferred configuration
 
-- **Ghostscript**: **`documind`** relies on Ghostscript for handling certain PDF operations.
-- **GraphicsMagick**: Required for image processing within document conversions.
+4. Start Documind with Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
 
-Install both on your system before proceeding:
+5. Access Documind at http://localhost:8080 (default credentials: admin/admin123)
+
+### Native Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/documind.git
+   cd documind
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create an environment file:
+   ```bash
+   cp .env.template .env
+   ```
+
+4. Edit the `.env` file with your preferred configuration
+
+5. Build the application:
+   ```bash
+   npm run build
+   ```
+
+6. Start Documind:
+   ```bash
+   npm start
+   ```
+
+7. Access Documind at http://localhost:8080 (default credentials: admin/admin123)
+
+## Automated Installation Script
+
+For a guided installation on Linux systems, you can use our installation script:
 
 ```bash
-# On macOS
-brew install ghostscript graphicsmagick
-
-# On Debian/Ubuntu
-sudo apt-get update
-sudo apt-get install -y ghostscript graphicsmagick
-
+curl -fsSL https://get.documind.io | bash -s -- --interactive
 ```
 
-### **Node.js & NPM**
-
-Ensure Node.js (v18+) and NPM are installed on your system.
-
-## **Installation**
-
-You can install **`documind`** via npm:
+Or for automatic detection and optimization:
 
 ```bash
-npm install documind
-
+curl -fsSL https://get.documind.io | bash -s -- --auto-detect --optimize --secure
 ```
 
-### **Environment Setup**
+## Configuration
 
-**`documind`** requires an **`.env`** file to store sensitive information like your OpenAI API key.
+### Database Options
 
-Create an **`.env`** file in your project directory and add the following:
+Documind supports multiple database backends:
+
+- **SQLite**: Best for personal use or small teams
+- **MySQL**: Good for medium-sized deployments
+- **PostgreSQL**: Recommended for large-scale deployments
+
+Configure the database connection in your `.env` file.
+
+### Authentication Methods
+
+Documind supports three authentication methods:
+
+- **Password**: Built-in username/password authentication
+- **OIDC**: OpenID Connect for integration with identity providers
+- **LDAP**: Lightweight Directory Access Protocol for enterprise integration
+
+### Storage Configuration
+
+Configure document storage path and limits in your `.env` file:
+
+```
+DOCUMIND_STORAGE_PATH=/var/documind/storage
+DOCUMIND_STORAGE_MAX_SIZE=10240  # in MB
+```
+
+## Security Considerations
+
+1. **Change default credentials immediately** after first login
+2. **Use TLS/HTTPS** in production environments
+3. **Regular backups** of both database and document storage
+4. **Restrict access** to the server hosting Documind
+
+## Advanced Configuration
+
+### Using Nginx as a Reverse Proxy
+
+For production deployments, we recommend using Nginx as a reverse proxy in front of Documind. Sample configuration files are provided in the `docker/nginx` directory.
+
+### Scaling Documind
+
+For large deployments, consider:
+
+1. Using PostgreSQL as the database backend
+2. Increasing indexing threads based on available CPU cores
+3. Setting up regular maintenance tasks for database optimization
+4. Using a dedicated NFS mount for document storage
+
+## Development
+
+### Setting Up Development Environment
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start development server: `npm run dev`
+
+### Running Tests
 
 ```bash
-OPENAI_API_KEY=your_openai_api_key
+npm test
 ```
 
-## **Usage**
+## Contributing
 
-### **Basic Example**
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-First, import **`documind`** and define your schema. The schema outline what information **`documind`** should look for in each document. Here’s a quick setup to get started.
+## License
 
-### **1. Define a Schema**
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-The schema is an array of objects where each object defines:
+## Support
 
-- **name**: Field name to extract.
-- **type**: Data type (e.g., **`"string"`**, **`"number"`**, **`"array"`**, **`"object"`**).
-- **description**: Description of the field.
-- **children** (optional): For arrays and objects, define nested fields.
-
-Example schema for a bank statement:
-
-```jsx
-const schema = [
-  {
-    name: "accountNumber",
-    type: "string",
-    description: "The account number of the bank statement."
-  },
-  {
-    name: "openingBalance",
-    type: "number",
-    description: "The opening balance of the account."
-  },
-  {
-    name: "transactions",
-    type: "array",
-    description: "List of transactions in the account.",
-    children: [
-      {
-        name: "date",
-        type: "string",
-        description: "Transaction date."
-      },
-      {
-        name: "creditAmount",
-        type: "number",
-        description: "Credit Amount of the transaction."
-      },
-      {
-        name: "debitAmount",
-        type: "number",
-        description: "Debit Amount of the transaction."
-      },
-      {
-        name: "description",
-        type: "string",
-        description: "Transaction description."
-      }
-    ]
-  },
-  {
-    name: "closingBalance",
-    type: "number",
-    description: "The closing balance of the account."
-  }
-];
-
-```
-
-### **2. Run `documind`**
-
-Use **`documind`** to process a PDF by passing the file URL and the schema.
-
-```jsx
-import { extract } from 'documind';
-
-const runExtraction = async () => {
-  const result = await extract({
-    file: 'https://bank_statement.pdf',
-    schema
-  });
-
-  console.log("Extracted Data:", result);
-};
-
-runExtraction();
-
-```
-
-### **Example Output**
-
-Here’s an example of what the extracted result might look like:
-
-```json
- {
-  "success": true,
-  "pages": 1,
-  "data": {
-    "accountNumber": "100002345",
-    "openingBalance": 3200,
-    "transactions": [
-        {
-        "date": "2021-05-12",
-        "creditAmount": null,
-        "debitAmount": 100,
-        "description": "transfer to Tom" 
-      },
-      {
-        "date": "2021-05-12",
-        "creditAmount": 50,
-        "debitAmount": null,
-        "description": "For lunch the other day"
-      },
-      {
-        "date": "2021-05-13",
-        "creditAmount": 20,
-        "debitAmount": null,
-        "description": "Refund for voucher"
-      },
-      {
-        "date": "2021-05-13",
-        "creditAmount": null,
-        "debitAmount": 750,
-        "description": "May's rent"
-      }
-    ],
-    "closingBalance": 2420
-  },
-  "fileName": "bank_statement.pdf"
-}
-
-```
-
-Read the [documentation](https://docs.documind.xyz/guides/schema-definition) for more on how to define schemas and and enable auto-generation.
-
-### **Templates**
-
-Documind comes with built-in templates for extracting data from popular document types like invoices, bank statements, and more. These templates make it easier to get started without defining your own schema.
-
-**List available templates**
-
-You can list all available templates using the `templates.list` function.
-
-```javascript
-import { templates } from 'documind';
-
-const templates = templates.list();
-console.log(templates); // Logs all available template names
-```
-**Use a template**
-
-To use a template, simply pass its name to the `extract` function along with the file you want to extract data from. Here's an example:
-
-```javascript
-import { extract } from 'documind';
-
-const runExtraction = async () => {
-  const result = await extract({
-    file: 'https://bank_statement.pdf',
-    template: 'bank_statement'
-  });
-
-  console.log("Extracted Data:", result);
-};
-
-runExtraction();
-```
-Read the [templates documentation](https://docs.documind.xyz/templates/overview) for more details on templates and how to contribute yours.
-
-## **Using Local LLM Models**
-
-Read more on how to use local models [here](https://docs.documind.xyz/guides/local-models).
-
-## **Contributing**
-
-Contributions are welcome! Please submit a pull request with any improvements or features.
-
-## **License**
-
-This project is licensed under the AGPL v3.0 License.
-
-## **Credit**
-
-This repo was built on top of [Zerox](https://github.com/getomni-ai/zerox). The MIT license from Zerox is included in the core folder and is also mentioned in the root license file.
-
----
+- GitHub Issues: [https://github.com/yourusername/documind/issues](https://github.com/yourusername/documind/issues)
+- Documentation: [https://docs.documind.io](https://docs.documind.io)

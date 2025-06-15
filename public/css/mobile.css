@@ -1,0 +1,390 @@
+/**
+ * Mobile-responsive UI styles for Documind
+ * These styles enhance the application for use on mobile devices
+ */
+
+/* Base styles for mobile devices */
+@media (max-width: 768px) {
+
+    /* Layout adjustments */
+    .container {
+        padding: 10px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    /* Header adjustments */
+    .navbar {
+        padding: 10px;
+    }
+
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+
+    .navbar-toggler {
+        display: block;
+    }
+
+    .navbar-collapse {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        width: 80%;
+        height: calc(100% - 56px);
+        background-color: var(--dark);
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        overflow-y: auto;
+        box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .navbar-collapse.show {
+        transform: translateX(0);
+    }
+
+    /* Sidebar adjustments */
+    .sidebar {
+        display: none;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 10px;
+    }
+
+    /* Card adjustments */
+    .card {
+        margin-bottom: 15px;
+    }
+
+    /* Form adjustments */
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        font-size: 16px;
+        /* Better for touch input */
+    }
+
+    /* Button adjustments */
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group .btn {
+        margin-bottom: 5px;
+        border-radius: 4px !important;
+        width: 100%;
+    }
+
+    .modern-btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* Tables adjustments */
+    .table-responsive {
+        border: 0;
+    }
+
+    /* Document list optimization */
+    .document-list .document-item {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .document-item .document-details {
+        width: 100%;
+        padding-left: 0;
+        margin-top: 10px;
+    }
+
+    .document-actions {
+        position: static;
+        width: 100%;
+        margin-top: 10px;
+        justify-content: space-around;
+    }
+
+    /* Modal adjustments */
+    .modal-dialog {
+        margin: 10px;
+        width: calc(100% - 20px);
+        max-width: none;
+    }
+
+    /* Dashboard adjustments */
+    .dashboard-widgets .widget {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+
+    /* Search interface adjustments */
+    .search-input-container {
+        flex-direction: column;
+    }
+
+    .search-input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .search-btn {
+        width: 100%;
+    }
+
+    .search-filters {
+        width: 100%;
+    }
+
+    /* Mobile-specific navigation */
+    .mobile-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background-color: var(--dark);
+        z-index: 1000;
+        justify-content: space-around;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: var(--light);
+        text-decoration: none;
+        font-size: 0.7rem;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+    }
+
+    .mobile-nav-item.active {
+        opacity: 1;
+        color: var(--primary);
+    }
+
+    .mobile-nav-item i {
+        font-size: 1.5rem;
+        margin-bottom: 2px;
+    }
+
+    /* Make document viewer mobile friendly */
+    .document-viewer {
+        height: calc(100vh - 120px);
+        /* Adjust height considering top and bottom nav */
+    }
+
+    .document-viewer-content {
+        padding: 10px;
+    }
+
+    .pdf-viewer {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Hide desktop elements */
+    .desktop-only {
+        display: none;
+    }
+
+    /* Show mobile elements */
+    .mobile-only {
+        display: block;
+    }
+
+    /* Visualization adjustments */
+    .mindmap-visualization,
+    .timeline-visualization,
+    .clusters-visualization {
+        height: auto;
+        min-height: 400px;
+    }
+
+    /* Document comparison view */
+    .diff-view.side-by-side {
+        flex-direction: column;
+    }
+
+    .diff-left,
+    .diff-right {
+        width: 100%;
+    }
+
+    /* Mobile scrolling fixes */
+    body {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .navbar-brand span {
+        display: none;
+    }
+
+    .navbar-brand img {
+        margin-right: 0;
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+    }
+
+    .modal-header .modal-title {
+        font-size: 1.2rem;
+    }
+
+    .document-item .document-icon {
+        font-size: 2rem;
+    }
+
+    .search-input-container {
+        gap: 5px;
+    }
+
+    .document-meta span {
+        margin-right: 8px;
+        font-size: 0.7rem;
+    }
+
+    .mobile-nav-item {
+        font-size: 0.6rem;
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 992px) {
+    .main-content {
+        margin-left: 200px;
+    }
+
+    .sidebar {
+        width: 200px;
+    }
+
+    .mobile-nav {
+        display: none;
+    }
+
+    .document-item .document-details {
+        width: calc(100% - 150px);
+    }
+}
+
+/* Mobile-specific components */
+.mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 80%;
+    max-width: 300px;
+    background-color: var(--dark);
+    z-index: 2000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.mobile-drawer.open {
+    transform: translateX(0);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.mobile-drawer-header {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-drawer-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--light);
+}
+
+.mobile-drawer-close {
+    background: none;
+    border: none;
+    color: var(--light);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.mobile-drawer-content {
+    padding: 15px;
+    flex: 1;
+}
+
+.mobile-drawer-footer {
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Touch-friendly hover states */
+@media (hover: none) {
+    .hover-highlight:hover {
+        background-color: transparent !important;
+    }
+
+    /* Add active states for touch */
+    .hover-highlight:active {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Larger touch targets */
+    .dropdown-item,
+    .nav-link,
+    .btn {
+        padding: 12px 15px;
+    }
+
+    /* Increase space between clickable elements */
+    .document-actions .btn {
+        margin: 0 5px;
+    }
+}

@@ -1,0 +1,130 @@
+# Enhanced Ninja build file for Documind with production deployment capabilities
+# Auto-generated - do not edit manually
+
+# Global variables
+ninja_required_version = 1.8
+builddir = build
+distdir = dist
+srcdir = src
+testdir = tests
+toolsdir = tools
+deploydir = deploy
+
+# Compiler and tool definitions
+tsc = ./node_modules/.bin/tsc
+eslint = ./node_modules/.bin/eslint
+jest = ./node_modules/.bin/jest
+node = node
+docker = docker
+npm = npm
+
+# Ninja team commands
+ninja_deploy = scripts/ninja-deploy.sh
+ninja_monitor = scripts/ninja-monitor.sh
+ninja_rollback = scripts/ninja-rollback.sh
+ninja_report = scripts/ninja-report.sh
+ninja_scan = scripts/ninja-scan.sh
+
+# Rules
+rule typescript
+  command = $tsc
+  description = Compiling TypeScript
+  
+rule lint
+  command = $eslint $in
+  description = Linting $in
+  
+rule test
+  command = $jest $in --ci
+  description = Testing $in
+  
+rule docker_build
+  command = $docker build -t documind:$tag -f $dockerfile .
+  description = Building Docker image documind:$tag
+  
+rule docker_push
+  command = $docker push $registry/documind:$tag
+  description = Pushing Docker image to $registry
+  
+rule cmake
+  command = cmake -G Ninja -B $builddir $options
+  description = Generating build files with CMake
+
+# New ninja deployment rules
+rule ninja_deploy
+  command = $ninja_deploy --env=$env --tag=$tag --recursive=$recursive --parallel=$parallel
+  description = Deploying to $env with ninja team (recursive=$recursive, parallel=$parallel)
+
+rule ninja_scan
+  command = $ninja_scan --env=$env --deep=$deep
+  description = Scanning $env environment for vulnerabilities (deep=$deep)
+
+rule ninja_monitor
+  command = $ninja_monitor --env=$env --duration=$duration
+  description = Monitoring $env deployment for $duration
+
+# Primary targets
+build typescript: typescript
+build lint: lint $srcdir
+build test: test $testdir
+build docker: docker_build
+  dockerfile = docker/Dockerfile
+  tag = latest
+
+build analyze: phony
+  command = $node scripts/crawl-code.js
+
+# Generate the build files with recursive dependencies
+build cmake: cmake
+  options = -DDOCUMIND_ENABLE_TESTING=ON -DDOCUMIND_ENABLE_ANALYSIS=ON
+
+build recursive_build: phony cmake
+  command = ninja -C $builddir
+
+# The main target that builds everything
+build all: phony typescript lint test docker recursive_build
+
+# Ninja deployment targets
+build deploy-production: ninja_deploy
+  env = production
+  tag = latest
+  recursive = 3
+  parallel = 4
+
+build deploy-staging: ninja_deploy
+  env = staging
+  tag = latest
+  recursive = 2
+  parallel = 2
+
+build deploy-dev: ninja_deploy
+  env = development
+  tag = latest
+  recursive = 1
+  parallel = 1
+
+build scan-production: ninja_scan
+  env = production
+  deep = true
+
+build scan-staging: ninja_scan
+  env = staging
+  deep = false
+
+build monitor-production: ninja_monitor
+  env = production
+  duration = 1h
+
+build monitor-staging: ninja_monitor
+  env = staging
+  duration = 30m
+
+# Total pipeline targets
+build full-deploy-production: phony typescript lint test docker deploy-production scan-production monitor-production
+  description = Full production deployment pipeline
+
+build full-deploy-staging: phony typescript lint test docker deploy-staging scan-staging monitor-staging
+  description = Full staging deployment pipeline
+
+# Default target
+default all

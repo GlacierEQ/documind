@@ -1,0 +1,60 @@
+# Multi-stage build for Documind application
+
+# Stage 1: Build dependencies and application
+FROM node:18-alpine as builder
+
+# Install build dependencies
+RUN apk add --no-cache python3 make g++ git
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Stage 2: Create production image
+FROM node:18-alpine
+
+# Install production dependencies
+RUN apk add --no-cache python3 tesseract-ocr poppler-utils ghostscript 
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Create app directory
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/views ./views
+
+# Create necessary directories
+RUN mkdir -p /app/data /app/data/uploads /app/data/temp /app/data/templates
+
+# Set up Python environment for AI features
+COPY src/ai/python/requirements.txt ./src/ai/python/
+COPY src/ai/python ./src/ai/python/
+RUN python3 -m pip install --no-cache-dir -r src/ai/python/requirements.txt
+
+# Expose port
+EXPOSE 3000
+
+# Define command to run the application
+CMD ["node", "dist/index.js"]

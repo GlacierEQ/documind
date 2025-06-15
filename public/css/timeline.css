@@ -1,0 +1,378 @@
+/* Timeline Visualization Styles */
+
+.timeline-visualization {
+    background-color: var(--dark-light);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin: 20px 0;
+    padding: 20px 0;
+    overflow: hidden;
+    min-height: 500px;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--dark-medium);
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.timeline-title {
+    display: flex;
+    flex-direction: column;
+}
+
+.timeline-title h3 {
+    margin: 0;
+    color: var(--light);
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.timeline-subtitle {
+    color: var(--gray);
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
+
+.timeline-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timeline-filter select,
+.timeline-entity-filter select {
+    background-color: var(--dark);
+    color: var(--light);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+}
+
+.timeline-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.timeline-actions button {
+    background: none;
+    border: none;
+    color: var(--light);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 5px;
+    opacity: 0.7;
+    border-radius: 4px;
+}
+
+.timeline-actions button:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Timeline visualization area */
+.timeline-visualization-area {
+    width: 100%;
+    min-height: 400px;
+    background-color: var(--dark-light);
+    padding: 0 10px;
+}
+
+/* Timeline Legend */
+.timeline-legend {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 15px;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    align-items: center;
+}
+
+.legend-title {
+    font-weight: 600;
+    margin-right: 15px;
+    color: var(--light);
+}
+
+.legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.legend-label {
+    font-size: 0.8rem;
+    color: var(--light);
+}
+
+/* Event type colors */
+.event-hearing,
+.legend-color.event-hearing {
+    background-color: #2c6fdd;
+}
+
+.event-filing,
+.legend-color.event-filing {
+    background-color: #6c5ce7;
+}
+
+.event-deadline,
+.legend-color.event-deadline {
+    background-color: #e74c3c;
+}
+
+.event-meeting,
+.legend-color.event-meeting {
+    background-color: #00b894;
+}
+
+.event-trial,
+.legend-color.event-trial {
+    background-color: #e17055;
+}
+
+.event-document,
+.legend-color.event-document {
+    background-color: #74b9ff;
+}
+
+.event-execution,
+.legend-color.event-execution {
+    background-color: #a29bfe;
+}
+
+.event-birth,
+.legend-color.event-birth {
+    background-color: #fab1a0;
+}
+
+.event-marriage,
+.legend-color.event-marriage {
+    background-color: #ff7675;
+}
+
+.event-property,
+.legend-color.event-property {
+    background-color: #55efc4;
+}
+
+.event-other,
+.legend-color.event-other {
+    background-color: #636e72;
+}
+
+/* Timeline Event Styling */
+.timeline-event {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 0.9rem;
+    max-width: 300px;
+}
+
+.event-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.event-content {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.event-title {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.event-description {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 2.4em;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Timeline vis.js overrides */
+.vis-timeline {
+    border: none !important;
+    font-family: var(--font-main);
+}
+
+.vis-item {
+    border-radius: 4px;
+    border-width: 0;
+}
+
+.vis-item.vis-selected {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.vis-item.vis-point .vis-item-content {
+    padding: 0;
+}
+
+.vis-item .vis-item-content {
+    padding: 3px;
+}
+
+.vis-time-axis .vis-text {
+    color: var(--light);
+}
+
+.vis-time-axis .vis-grid.vis-minor {
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.vis-time-axis .vis-grid.vis-major {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.vis-foreground .vis-group {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Event Detail Modal */
+.event-detail-container {
+    color: var(--light);
+}
+
+.event-detail-header {
+    padding: 15px;
+    margin: -16px -16px 15px -16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+}
+
+.event-detail-date {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.event-detail-type {
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.event-detail-section {
+    margin-bottom: 20px;
+}
+
+.event-detail-section h6 {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--primary);
+}
+
+.entity-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.entity-chip {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 0.85rem;
+}
+
+.event-context-box {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 10px;
+    font-style: italic;
+    font-size: 0.9rem;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+/* Timeline in fullscreen mode */
+.timeline-visualization.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    margin: 0;
+    padding: 20px;
+    height: 100vh;
+}
+
+.timeline-visualization.fullscreen .timeline-visualization-area {
+    height: calc(100vh - 120px);
+}
+
+/* Empty state and error message */
+.empty-state,
+.error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    min-height: 300px;
+}
+
+.empty-state i,
+.error-message i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.6;
+}
+
+.empty-state p,
+.error-message p {
+    margin-bottom: 20px;
+    color: var(--gray);
+}
+
+.error-message i {
+    color: var(--danger);
+}
+
+.timeline-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    min-height: 300px;
+}

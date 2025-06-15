@@ -1,0 +1,131 @@
+# Documind Production Environment Manifest
+# This file defines the production deployment configuration
+
+name: production
+description: Production environment for Documind
+
+# Infrastructure configuration
+infrastructure:
+  provider: aws
+  region: us-east-1
+  vpc_id: vpc-0a1b2c3d4e5f
+  private_subnet_ids:
+    - subnet-0a1b2c3d4e5f
+    - subnet-1a2b3c4d5e6f
+    - subnet-2a3b4c5d6e7f
+  domain: documind.example.com
+  certificate_arn: arn:aws:acm:us-east-1:123456789012:certificate/abc123-def456
+
+# Deployment configuration
+deployment:
+  strategy: blue-green
+  method: swarm
+  replicas: 3
+  autoscaling:
+    min_replicas: 3
+    max_replicas: 10
+    target_cpu_utilization: 70
+    target_memory_utilization: 80
+  update_config:
+    parallelism: 1
+    delay: 60s
+    failure_action: rollback
+    monitor: 120s
+    max_failure_ratio: 0.2
+    order: start-first
+  rollback:
+    automatic: true
+    failure_threshold: 1
+    monitor_time: 60s
+
+# Resource allocation
+resources:
+  app:
+    cpu: 2
+    memory: 4G
+    storage: 50G
+  db:
+    cpu: 4
+    memory: 8G
+    storage: 200G
+  redis:
+    cpu: 1
+    memory: 2G
+
+# Database configuration
+database:
+  type: postgres
+  version: 14
+  instance_class: db.t3.large
+  multi_az: true
+  backup_retention_days: 30
+  maintenance_window: sun:04:00-sun:06:00
+  parameters:
+    shared_buffers: 1GB
+    max_connections: 200
+
+# Redis configuration
+redis:
+  version: 7.0
+  cluster_mode: false
+  replication: true
+  node_type: cache.t3.medium
+  engine_parameters:
+    maxmemory-policy: volatile-lru
+
+# Scaling configuration
+scaling:
+  auto_scaling: true
+  target_cpu_percent: 70
+  target_memory_percent: 80
+
+# Monitoring configuration
+monitoring:
+  prometheus: true
+  grafana_dashboards:
+    - application
+    - database
+    - system
+  alerts:
+    - name: HighErrorRate
+      threshold: 5
+      duration: 5m
+      recipients: ops@documind.example.com
+    - name: HighCPUUsage
+      threshold: 90
+      duration: 10m
+      recipients: ops@documind.example.com
+    - name: HighMemoryUsage
+      threshold: 90
+      duration: 10m
+      recipients: ops@documind.example.com
+
+# Security configuration
+security:
+  ip_allowlist:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+  ssl: true
+  waf_enabled: true
+  secrets_manager: aws_secrets_manager
+  mtls_enabled: true
+
+# Backup configuration
+backup:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 30
+  storage:
+    type: s3
+    bucket: documind-backups
+    path: production/
+  encrypt: true
+
+# Feature flags
+features:
+  ai_assistant: true
+  advanced_ocr: true
+  legal_research: true
+  multi_language: true
+  document_clustering: true
+  timeline_extraction: true
+  brief_assistant: true
