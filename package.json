@@ -7,7 +7,9 @@
     "start": "node dist/index.js",
     "build": "tsc",
     "dev": "ts-node-dev src/index.ts",
-    "test": "jest"
+    "test": "vitest run",
+    "test:gctr": "node scripts/gctr.js",
+    "case:organize": "node scripts/case-organizer.js"
   },
   "dependencies": {
     "@pdftron/pdfnet-node": "^11.3.0",
