@@ -26,7 +26,7 @@ function fileHash(file) {
 function runTest(file, cachePath) {
   const tmp = path.join(cacheDir, `${Date.now()}_result.json`);
   execSync(`npx jest "${file}" --runTestsByPath --json --outputFile="${tmp}"`, {
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
   fs.renameSync(tmp, cachePath);
   return JSON.parse(fs.readFileSync(cachePath, 'utf8'));
@@ -35,22 +35,21 @@ function runTest(file, cachePath) {
 let failures = 0;
 const results = [];
 
-for (const testFile of listTests()) {
+listTests().forEach((testFile) => {
   const hash = fileHash(testFile);
   const cachePath = path.join(cacheDir, `${hash}.json`);
   if (fs.existsSync(cachePath)) {
     console.log(`Using cache for ${testFile}`);
     results.push(JSON.parse(fs.readFileSync(cachePath, 'utf8')));
-    continue;
+    return;
   }
   console.log(`Running ${testFile}`);
   const result = runTest(testFile, cachePath);
   if (result.numFailedTests > 0) failures += result.numFailedTests;
   results.push(result);
-}
+});
 
 console.log(JSON.stringify({ results }, null, 2));
 if (failures > 0) {
   process.exit(1);
 }
-
