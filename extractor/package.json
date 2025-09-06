@@ -10,7 +10,7 @@
   "dependencies": {
     "@ai-sdk/google": "^1.1.14",
     "@google/generative-ai": "^0.22.0",
-    "ai": "^4.1.41",
+    "ai": "^5.0.0",
     "axios": "^1.7.7",
     "core": "*",
     "dotenv": "^16.4.5",
