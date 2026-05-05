@@ -193,3 +193,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - GitHub Issues: [https://github.com/yourusername/documind/issues](https://github.com/yourusername/documind/issues)
 - Documentation: [https://docs.documind.io](https://docs.documind.io)
+
